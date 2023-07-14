@@ -1,0 +1,64 @@
+toggle_solar:
+  name: "Toggle solar charging"
+  description: "Toggle solar charging state"
+  fields:
+    device_id:
+      name: Target device
+      description: "Select one of the chargers in the circuit that should be controlled."
+      required: true
+      example: "b40f1f45d28b0891fe8d"
+      selector:
+        device:
+          integration: "ev_metron_websockets"
+
+set_dynamic_limit:
+  name: "Set charger dynamic limit"
+  description: "Set charger dynamic limit"
+  fields:
+    device_id:
+      name: Target device
+      description: "Select one of the chargers in the circuit that should be controlled."
+      required: true
+      example: "b40f1f45d28b0891fe8d"
+      selector:
+        device:
+          integration: "ev_metron_websockets"
+    current:
+      name: "Current"
+      required: true
+      description: "Max charging current"
+      example: 16
+      default: 12
+      selector:
+        number:
+          min: 0
+          max: 16
+          step: 1
+          unit_of_measurement: "A"
+          mode: slider
+
+set_charger_delay:
+  name: "Set charger delay"
+  description: "Set charger delay"
+  fields:
+    device_id:
+      name: Target device
+      description: "Select one of the chargers in the circuit that should be controlled."
+      required: true
+      example: "b40f1f45d28b0891fe8d"
+      selector:
+        device:
+          integration: "ev_metron_websockets"
+    time:
+      name: "Minutes"
+      required: true
+      description: "Minutes to delay"
+      example: 16
+      default: 60
+      selector:
+        number:
+          min: 5
+          max: 720
+          step: 5
+          unit_of_measurement: "minutes"
+          mode: slider
