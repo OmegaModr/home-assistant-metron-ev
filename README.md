@@ -34,17 +34,16 @@ Change the entity names to your specific ones.
 
 ```yaml
 type: custom:charger-card
-entity: sensor.ovca_station_name
 brand: template
 show_leds: true
 details:
   name:
-    entity_id: sensor.ovca_station_name
+    entity_id: sensor.doma_station_name
     attribute: name
   status:
-    entity_id: sensor.ovca_station_status
+    entity_id: sensor.doma_station_status
   substatus:
-    entity_id: sensor.ovca_solar_charging_enable
+    entity_id: sensor.doma_solar_charging_enable
   currentlimits:
     - 0
     - 6
@@ -62,65 +61,70 @@ details:
     group3:
       visible: false
   info_left:
-    - entity_id: sensor.ovca_station_active
+    - entity_id: sensor.doma_station_active
       text: Online
       icon: mdi:connection
-    - entity_id: sensor.ovca_telemetry_signal_present
+    - entity_id: sensor.doma_telemetry_signal_present
       text: Signal Strength
       icon: mdi:signal
   group1:
-    - entity_id: sensor.ovca_dinamic_charging_current_limit
+    - entity_id: sensor.doma_dinamic_charging_current_limit
       text: Current Limit
       unit_show: true
-      service: metron.set_dynamic_limit
+      service: ev_metron_websockets.set_dynamic_limit
       service_data:
         current: '#SERVICEVAL#'
-    - entity_id: sensor.ovca_timer_delay
+        device_id: c0f08ebfa4af4d991cca4430a16c028e
+    - entity_id: sensor.doma_timer_delay
       text: Charge Delay
       unit_show: false
       icon: mdi:clock
-      service: metron.set_charger_delay
+      service: ev_metron_websockets.set_charger_delay
       dropdownitems:
+        - 0
         - 60
         - 180
         - 240
       service_data:
-        current: '#SERVICEVAL#'
-    - entity_id: sensor.ovca_solar_charging_state
+        time: '#SERVICEVAL#'
+        device_id: c0f08ebfa4af4d991cca4430a16c028e
+    - entity_id: sensor.doma_solar_charging_state
       text: Solar Charging
       unit_show: false
       icon: mdi:solar-power
-      service: metron.toggle_solar
+      service: ev_metron_websockets.toggle_solar
       type: service
       service_data:
-        current: '#SERVICEVAL#'
+        device_id: c0f08ebfa4af4d991cca4430a16c028e
   group2:
-    - entity_id: sensor.ovca_l1_current
+    - entity_id: sensor.doma_l1_current
       text: L1 Current
       unit_show: true
-    - entity_id: sensor.ovca_l2_current
+    - entity_id: sensor.doma_l2_current
       text: L2 Current
       unit_show: true
-    - entity_id: sensor.ovca_l3_current
+    - entity_id: sensor.doma_l3_current
       text: L3 Current
       unit_show: true
-    - entity_id: sensor.ovca_previous_charge_energy
+    - entity_id: sensor.doma_previous_charge_energy
       text: Previous charge
       unit_show: true
-    - entity_id: sensor.ovca_solar_surplus_power
+    - entity_id: sensor.doma_solar_surplus_power
       text: Solar Surplus
       icon: mdi:solar-power
       unit_show: true
   stats:
     default:
-      - entity_id: sensor.ovca_total_charging_power
+      - entity_id: sensor.doma_total_charging_power
         text: Charge Power
         unit_show: true
-      - entity_id: sensor.ovca_this_charge_energy
+      - entity_id: sensor.doma_this_charge_energy
         text: This Charge
         unit_show: true
-      - entity_id: sensor.ovca_charging_time
+      - entity_id: sensor.doma_charging_time
         text: Charge Time
+show_toolbar: false
+entity: sensor.doma_station_name
 
 ```
 
