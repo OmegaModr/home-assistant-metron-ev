@@ -3,13 +3,15 @@
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.const import UnitOfEnergy, UnitOfPower, UnitOfElectricCurrent
+from homeassistant.const import UnitOfEnergy, UnitOfPower, UnitOfElectricCurrent, UnitOfTime
 from homeassistant.util import dt as dt_util
 from homeassistant.components.sensor import (
-    STATE_CLASS_MEASUREMENT,
-    SensorDeviceClass,
+    SensorStateClass,
+    SensorDeviceClass, 
 )
-
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass, 
+)
 
 from .const import DOMAIN
 from .entity import MetronEVBaseEntity
@@ -50,6 +52,8 @@ async def async_setup_entry(
             LocalNetworkIPString(hub),
             TimerDelay(hub),
             SignalPresent(hub),
+            CarConnected(hub),
+            CarCharging(hub),
         ]
     )
 
@@ -86,6 +90,8 @@ class MetronStatus(MetronEVBaseEntity):
         elif int(self._hub.metron_ev_status) == 5:
             return "STATION BOOTING"
         elif int(self._hub.metron_ev_status) == 6:
+            return "Waiting for charging activation"
+        elif int(self._hub.metron_ev_status) == 7:
             return "Waiting for charging activation"
         else:
             return "Station or vehicle error"
@@ -130,7 +136,7 @@ class L1CurrentStation(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_L1_current_station"
         self._attr_name = f"{hub._name} L1 current"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfElectricCurrent.AMPERE
         self._attr_device_class = SensorDeviceClass.CURRENT
 
@@ -148,7 +154,7 @@ class L2CurrentStation(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_L2_current_station"
         self._attr_name = f"{hub._name} L2 current"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfElectricCurrent.AMPERE
         self._attr_device_class = SensorDeviceClass.CURRENT
 
@@ -166,7 +172,7 @@ class L3CurrentStation(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_L3_current_station"
         self._attr_name = f"{hub._name} L3 current"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfElectricCurrent.AMPERE
         self._attr_device_class = SensorDeviceClass.CURRENT
 
@@ -184,7 +190,7 @@ class L1CurrentBuilding(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_L1_current_building"
         self._attr_name = f"{hub._name} L1 building current"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfElectricCurrent.AMPERE
         self._attr_device_class = SensorDeviceClass.CURRENT
 
@@ -202,7 +208,7 @@ class L2CurrentBuilding(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_L2_current_building"
         self._attr_name = f"{hub._name} L2 building current"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfElectricCurrent.AMPERE
         self._attr_device_class = SensorDeviceClass.CURRENT
 
@@ -220,7 +226,7 @@ class L3CurrentBuilding(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_L3_current_building"
         self._attr_name = f"{hub._name} L3 building current"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfElectricCurrent.AMPERE
         self._attr_device_class = SensorDeviceClass.CURRENT
 
@@ -238,7 +244,7 @@ class L1CurrentSolar(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_solar_current"
         self._attr_name = f"{hub._name} solar current"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfElectricCurrent.AMPERE
         self._attr_device_class = SensorDeviceClass.CURRENT
 
@@ -256,7 +262,7 @@ class ButtonSetChargingCurrent(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_button_set_current"
         self._attr_name = f"{hub._name} button set current"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfElectricCurrent.AMPERE
         self._attr_device_class = SensorDeviceClass.CURRENT
 
@@ -274,7 +280,7 @@ class MainFuseRating(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_main_fuse"
         self._attr_name = f"{hub._name} main fuse rating"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfElectricCurrent.AMPERE
         self._attr_device_class = SensorDeviceClass.CURRENT
 
@@ -292,7 +298,7 @@ class DinamicChargingCurrentLimit(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_dinamic_charging_current_limit"
         self._attr_name = f"{hub._name} dinamic charging current limit"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfElectricCurrent.AMPERE
         self._attr_device_class = SensorDeviceClass.CURRENT
 
@@ -348,7 +354,7 @@ class TotalChargingPower(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_total_charging_power"
         self._attr_name = f"{hub._name} total charging power"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfPower.WATT
         self._attr_device_class = SensorDeviceClass.POWER
 
@@ -366,7 +372,7 @@ class ThisChargeEnergy(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_this_charge_energy"
         self._attr_name = f"{hub._name} this charge energy"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfEnergy.WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
 
@@ -384,11 +390,14 @@ class ChargingTime(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_charging_time"
         self._attr_name = f"{hub._name} charging time"
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_unit_of_measurement = UnitOfTime.SECONDS
+        self._attr_device_class = SensorDeviceClass.DURATION
 
     @property
-    def state(self) -> str:
+    def state(self) -> int:
         """Return the state of the sensor."""
-        charging_time = str(self._hub.hour_counter) + ":" + str(self._hub.minute_counter)
+        charging_time = (int(self._hub.hour_counter)*60)+int(self._hub.minute_counter)
         return charging_time
 
 class PreviousChargeEnergy(MetronEVBaseEntity):
@@ -399,7 +408,7 @@ class PreviousChargeEnergy(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_previous_charge_energy"
         self._attr_name = f"{hub._name} previous charge energy"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfEnergy.WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
 
@@ -417,7 +426,7 @@ class LifetimeEnergy(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_lifetime_energy"
         self._attr_name = f"{hub._name} lifetime_energy"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfEnergy.WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
         self._attr_last_reset = dt_util.utc_from_timestamp(0)
@@ -436,7 +445,7 @@ class SolarEnergy(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_solar_energy"
         self._attr_name = f"{hub._name}  solar energy"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfEnergy.WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
 
@@ -454,7 +463,7 @@ class SolarSURPLUSPower(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_solar_SURPLUS_power"
         self._attr_name = f"{hub._name} solar SURPLUS power"
-        self._attr_state_class = STATE_CLASS_MEASUREMENT
+        self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_unit_of_measurement = UnitOfPower.WATT
         self._attr_device_class = SensorDeviceClass.POWER
 
@@ -487,12 +496,15 @@ class TimerDelay(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_ESP32_timer_delay"
         self._attr_name = f"{hub._name} timer delay"
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_unit_of_measurement = UnitOfTime.MINUTES
+        self._attr_device_class = SensorDeviceClass.DURATION
 
     @property
-    def state(self) -> str:
+    def state(self) -> int:
         """Return the state of the sensor."""
 
-        return self._hub.ESP32_timer_delay
+        return int(self._hub.ESP32_timer_delay)
 
 class SignalPresent(MetronEVBaseEntity):
     """Metron station status entity."""
@@ -509,4 +521,38 @@ class SignalPresent(MetronEVBaseEntity):
         if int(self._hub.HC12_Signal_Present) == 1:
             return "Good"
         else:
-            return "No signal - charging stopped"
+            return "No signal"
+
+class CarConnected(MetronEVBaseEntity):
+    """Metron station status entity."""
+
+    def __init__(self, hub) -> None:
+        """Initialize the sensor."""
+        super().__init__(hub)
+        self._attr_unique_id = f"{hub._name}_car_connected"
+        self._attr_name = f"{hub._name} car connected"
+        self._attr_is_on = False
+        self._attr_device_class = BinarySensorDeviceClass.PLUG
+
+    @property
+    def state(self) -> bool:
+        """Return the state of the sensor."""
+        if int(self._hub.metron_ev_status) in [2, 3, 4, 7]:
+            return True
+
+class CarCharging(MetronEVBaseEntity):
+    """Metron station status entity."""
+
+    def __init__(self, hub) -> None:
+        """Initialize the sensor."""
+        super().__init__(hub)
+        self._attr_unique_id = f"{hub._name}_charging"
+        self._attr_name = f"{hub._name} charging"
+        self._attr_is_on = False
+        self._attr_device_class = BinarySensorDeviceClass.PLUG
+
+    @property
+    def state(self) -> bool:
+        """Return the state of the sensor."""
+        if int(self._hub.metron_ev_status) == 3 and int(self._hub._TCA0_cmp2) != 8000:
+            return True
