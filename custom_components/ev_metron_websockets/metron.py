@@ -26,7 +26,7 @@ def assign_variables(values):
     return parsed_variables
 
 def assign_variables_json(values):
-    """Assign values to named variables."""
+    """Assign values to named variables from json."""
     json_object = json.loads(values)
     value_of_key_s = json_object['s']
 
