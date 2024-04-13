@@ -114,8 +114,7 @@ def assign_variables_json(values):
 def is_json(s):
     """Determine if its an json object old the old format."""
     try:
-        json_object = json.loads(s)
-        test = json_object['a']
+        json_object = json.loads(s) # noqa: F841
     except ValueError:
         return False
     return True
