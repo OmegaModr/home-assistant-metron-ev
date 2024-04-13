@@ -391,7 +391,7 @@ class ChargingTime(MetronEVBaseEntity):
         self._attr_unique_id = f"{hub._name}_charging_time"
         self._attr_name = f"{hub._name} charging time"
         self._attr_state_class = SensorStateClass.MEASUREMENT
-        self._attr_unit_of_measurement = UnitOfTime.SECONDS
+        self._attr_unit_of_measurement = UnitOfTime.MINUTES
         self._attr_device_class = SensorDeviceClass.DURATION
 
     @property
