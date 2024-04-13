@@ -28,7 +28,6 @@ def assign_variables(values):
 def assign_variables_json(values):
     """Assign values to named variables from json."""
     json_object = json.loads(values)
-    value_of_key_s = json_object['s']
 
     parsed_variables = {
         "Status": json_object['a'],
@@ -113,8 +112,10 @@ def assign_variables_json(values):
     return parsed_variables
 
 def is_json(s):
+    """Determine if its an json object old the old format."""
     try:
         json_object = json.loads(s)
+        test = json_object['a']
     except ValueError:
         return False
     return True
