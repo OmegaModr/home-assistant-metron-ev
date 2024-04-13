@@ -539,6 +539,8 @@ class CarConnected(MetronEVBaseEntity):
         """Return the state of the sensor."""
         if int(self._hub.metron_ev_status) in [2, 3, 4, 7]:
             return True
+        else
+            return False
 
 class CarCharging(MetronEVBaseEntity):
     """Metron station status entity."""
@@ -556,3 +558,5 @@ class CarCharging(MetronEVBaseEntity):
         """Return the state of the sensor."""
         if int(self._hub.metron_ev_status) == 3 and int(self._hub._TCA0_cmp2) != 8000:
             return True
+        else
+            return False
