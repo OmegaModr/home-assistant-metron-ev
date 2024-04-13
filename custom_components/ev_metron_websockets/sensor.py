@@ -7,10 +7,10 @@ from homeassistant.const import UnitOfEnergy, UnitOfPower, UnitOfElectricCurrent
 from homeassistant.util import dt as dt_util
 from homeassistant.components.sensor import (
     SensorStateClass,
-    SensorDeviceClass, 
+    SensorDeviceClass,
 )
 from homeassistant.components.binary_sensor import (
-    BinarySensorDeviceClass, 
+    BinarySensorDeviceClass,
 )
 
 from .const import DOMAIN
