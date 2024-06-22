@@ -36,6 +36,7 @@ async def async_setup_entry(
             L1CurrentBuilding(hub),
             L2CurrentBuilding(hub),
             L3CurrentBuilding(hub),
+            HouseEnergy(hub),
             L1CurrentSolar(hub),
             ButtonSetChargingCurrent(hub),
             MainFuseRating(hub),
@@ -235,6 +236,24 @@ class L3CurrentBuilding(MetronEVBaseEntity):
         """Return the state of the sensor."""
 
         return self._hub.L3_current_building
+
+class HouseEnergy(MetronEVBaseEntity):
+    """Metron station building phase 3 current."""
+
+    def __init__(self, hub) -> None:
+        """Initialize the sensor."""
+        super().__init__(hub)
+        self._attr_unique_id = f"{hub._name}_house_energy"
+        self._attr_name = f"{hub._name} house energy"
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_unit_of_measurement = UnitOfEnergy.WATT_HOUR
+        self._attr_device_class = SensorDeviceClass.ENERGY
+
+    @property
+    def state(self) -> str:
+        """Return the state of the sensor."""
+
+        return self._hub.House_energy
 
 class L1CurrentSolar(MetronEVBaseEntity):
     """Metron solar current."""

@@ -1,6 +1,7 @@
 """Contains the MetronEVHub class."""
 
 import websockets
+import asyncio
 
 from collections.abc import Callable
 #from datetime import datetime
@@ -34,6 +35,7 @@ class MetronEVHub:
         self._L2_current_building = 0
         self._L3_current_building = 0
         self._L1_current_solar = 0
+        self._House_energy = 0
         self._button_set_charging_current = 0
         self._main_fuse_rating = 0
         self._dinamic_charging_current_limit = 0
@@ -62,42 +64,50 @@ class MetronEVHub:
 
     async def update(self) -> None:
         """Background task to loop websocket updates."""
-        async for websocket in websockets.connect(self._uri):
+        while True:
             try:
-                self._is_active = not websocket.closed
-                async for message in websocket:
-                    latest_message = metron.get_parsed_variables(message)
-                    self._metron_ev_status = latest_message.get("Status")
-                    self._L1_current_station = latest_message.get("L1_current_station")
-                    self._L2_current_station = latest_message.get("L2_current_station")
-                    self._L3_current_station = latest_message.get("L3_current_station")
-                    self._L1_current_building = latest_message.get("L1_current_building")
-                    self._L2_current_building = latest_message.get("L2_current_building")
-                    self._L3_current_building = latest_message.get("L3_current_building")
-                    self._L1_current_solar = latest_message.get("L1_current_solar")
-                    self._button_set_charging_current = latest_message.get("Button_set_charging_current")
-                    self._main_fuse_rating = latest_message.get("Main_fuse_rating")
-                    self._dinamic_charging_current_limit = latest_message.get("Dinamic_charging_current_limit")
-                    self._solar_charging_enable_esp = latest_message.get("Solar_charging_enable_ESP32_reply")
-                    self._solar_charging_enable = latest_message.get("Solar_charging_enable")
-                    self._total_charging_power = latest_message.get("Total_charging_power")
-                    self._this_charge_energy = latest_message.get("This_charge_energy")
-                    self._hour_counter = latest_message.get("hour_counter")
-                    self._minute_counter = latest_message.get("minute_counter")
-                    self._previous_charge_energy = latest_message.get("Previous_charge_energy")
-                    self._lifetime_energy = latest_message.get("Lifetime_energy")
-                    self._solar_energy = latest_message.get("Solar_energy")
-                    self._solar_SURPLUS_power = latest_message.get("Solar_SURPLUS_power")
-                    self._local_network_IP_string = latest_message.get("Local_network_IP_string")
-                    self._ESP32_timer_delay = latest_message.get("ESP32_timer_delay")
-                    self._HC12_Signal_Present = latest_message.get("HC12_Signal_Present")
-                    self._TCA0_cmp2 = latest_message.get("TCA0_cmp2")
-                    await self.publish_updates()
-            except websockets.WebSocketException:
+                async with websockets.connect(self._uri) as websocket:
+                    self._is_active = not websocket.closed
+                    async for message in websocket:
+                        latest_message = metron.get_parsed_variables(message)
+                        self._metron_ev_status = latest_message.get("Status")
+                        self._L1_current_station = latest_message.get("L1_current_station")
+                        self._L2_current_station = latest_message.get("L2_current_station")
+                        self._L3_current_station = latest_message.get("L3_current_station")
+                        self._L1_current_building = latest_message.get("L1_current_building")
+                        self._L2_current_building = latest_message.get("L2_current_building")
+                        self._L3_current_building = latest_message.get("L3_current_building")
+                        self._L1_current_solar = latest_message.get("L1_current_solar")
+                        self._button_set_charging_current = latest_message.get("Button_set_charging_current")
+                        self._main_fuse_rating = latest_message.get("Main_fuse_rating")
+                        self._dinamic_charging_current_limit = latest_message.get("Dinamic_charging_current_limit")
+                        self._solar_charging_enable_esp = latest_message.get("Solar_charging_enable_ESP32_reply")
+                        self._solar_charging_enable = latest_message.get("Solar_charging_enable")
+                        self._total_charging_power = latest_message.get("Total_charging_power")
+                        self._this_charge_energy = latest_message.get("This_charge_energy")
+                        self._hour_counter = latest_message.get("hour_counter")
+                        self._minute_counter = latest_message.get("minute_counter")
+                        self._previous_charge_energy = latest_message.get("Previous_charge_energy")
+                        self._lifetime_energy = latest_message.get("Lifetime_energy")
+                        self._solar_energy = latest_message.get("Solar_energy")
+                        self._House_energy = latest_message.get("House_energy")
+                        self._solar_SURPLUS_power = latest_message.get("Solar_SURPLUS_power")
+                        self._local_network_IP_string = latest_message.get("Local_network_IP_string")
+                        self._ESP32_timer_delay = latest_message.get("ESP32_timer_delay")
+                        self._HC12_Signal_Present = latest_message.get("HC12_Signal_Present")
+                        self._TCA0_cmp2 = latest_message.get("TCA0_cmp2")
+                        await self.publish_updates()
+            except websockets.WebSocketException as e:
+                print(f"WebSocket exception: {e}. Reconnecting in 5 seconds...")
                 self._is_active = False
-                continue
-            self._is_active = not websocket.closed
-            await self.publish_updates()
+                await asyncio.sleep(5)
+            except Exception as e:
+                print(f"Unexpected error: {e}. Reconnecting in 5 seconds...")
+                self._is_active = False
+                await asyncio.sleep(5)
+            else:
+                self._is_active = not websocket.closed
+                await self.publish_updates()
 
     @property
     def metron_ev_name(self) -> str:
@@ -208,6 +218,11 @@ class MetronEVHub:
     def solar_energy(self) -> str:
         """Return the value of solar_energy."""
         return self._solar_energy
+
+    @property
+    def House_energy(self) -> str:
+        """Return the value of solar_energy."""
+        return self._House_energy
 
     @property
     def solar_SURPLUS_power(self) -> str:
