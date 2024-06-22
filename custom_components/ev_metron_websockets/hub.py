@@ -98,9 +98,11 @@ class MetronEVHub:
                         self._TCA0_cmp2 = latest_message.get("TCA0_cmp2")
                         await self.publish_updates()
             except websockets.WebSocketException as e:
+                print(f"WebSocket exception: {e}. Reconnecting in 5 seconds...")  # noqa: T201
                 self._is_active = False
                 await asyncio.sleep(5)
             except Exception as e:
+                print(f"Unexpected error: {e}. Reconnecting in 5 seconds...")  # noqa: T201
                 self._is_active = False
                 await asyncio.sleep(5)
             else:
