@@ -2,13 +2,13 @@
   "domain": "ev_metron_websockets",
   "name": "Metron EV Charger (Local Websockets)",
   "codeowners": [
-    "@OmegaModr"
+    "@LeoAlioth"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/OmegaModr/home-assistant-metron-ev",
+  "documentation": "https://github.com/LeoAlioth/home-assistant-metron-evse",
   "integration_type": "hub",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/OmegaModr/home-assistant-metron-ev/issues",
+  "issue_tracker": "https://github.com/LeoAlioth/home-assistant-metron-evse/issues",
   "requirements": [
     "websockets==11.0.2"
   ],
