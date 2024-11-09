@@ -42,6 +42,8 @@ class MetronEVHub:
         self._solar_charging_enable = 0
         self._solar_charging_enable_esp = 0
         self._total_charging_power = 0
+        self._total_house_power = 0
+        self._total_solar_power = 0
         self._this_charge_energy = 0
         self._hour_counter = 0
         self._minute_counter = 0
@@ -84,6 +86,8 @@ class MetronEVHub:
                         self._solar_charging_enable_esp = latest_message.get("Solar_charging_enable_ESP32_reply")
                         self._solar_charging_enable = latest_message.get("Solar_charging_enable")
                         self._total_charging_power = latest_message.get("Total_charging_power")
+                        self._total_house_power = latest_message.get("Total_house_power")
+                        self._total_solar_power = latest_message.get("Total_solar_power")
                         self._this_charge_energy = latest_message.get("This_charge_energy")
                         self._hour_counter = latest_message.get("hour_counter")
                         self._minute_counter = latest_message.get("minute_counter")
@@ -188,6 +192,16 @@ class MetronEVHub:
     def total_charging_power(self) -> str:
         """Return the value of total_charging_power."""
         return self._total_charging_power
+   
+    @property
+    def total_house_power(self) -> str:
+        """Return the value of total_house_power."""
+        return self._total_house_power
+    
+    @property
+    def total_solar_power(self) -> str:
+        """Return the value of total_solar_power."""
+        return self._total_solar_power
 
     @property
     def this_charge_energy(self) -> str:
