@@ -44,6 +44,8 @@ async def async_setup_entry(
             SolarChargingEnable(hub),
             SolarChargingEnableShort(hub),
             TotalChargingPower(hub),
+            TotalHousePower(hub),
+            TotalSolarPower(hub),
             ThisChargeEnergy(hub),
             ChargingTime(hub),
             PreviousChargeEnergy(hub),
@@ -382,6 +384,42 @@ class TotalChargingPower(MetronEVBaseEntity):
         """Return the state of the sensor."""
 
         return self._hub.total_charging_power
+
+class TotalHousePower(MetronEVBaseEntity):
+    """Metron station status entity."""
+
+    def __init__(self, hub) -> None:
+        """Initialize the sensor."""
+        super().__init__(hub)
+        self._attr_unique_id = f"{hub._name}_total_house_power"
+        self._attr_name = f"{hub._name} total house power"
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_unit_of_measurement = UnitOfPower.WATT
+        self._attr_device_class = SensorDeviceClass.POWER
+
+    @property
+    def state(self) -> str:
+        """Return the state of the sensor."""
+
+        return self._hub.total_house_power
+
+class TotalSolarPower(MetronEVBaseEntity):
+    """Metron station status entity."""
+
+    def __init__(self, hub) -> None:
+        """Initialize the sensor."""
+        super().__init__(hub)
+        self._attr_unique_id = f"{hub._name}_total_solar_power"
+        self._attr_name = f"{hub._name} total solar power"
+        self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_unit_of_measurement = UnitOfPower.WATT
+        self._attr_device_class = SensorDeviceClass.POWER
+
+    @property
+    def state(self) -> str:
+        """Return the state of the sensor."""
+
+        return self._hub.total_solar_power
 
 class ThisChargeEnergy(MetronEVBaseEntity):
     """Metron station status entity."""

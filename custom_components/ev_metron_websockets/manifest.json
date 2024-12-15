@@ -8,9 +8,10 @@
   "documentation": "https://github.com/OmegaModr/home-assistant-metron-ev",
   "integration_type": "hub",
   "iot_class": "local_push",
+  "homeassistant": "2024.12.0",
   "issue_tracker": "https://github.com/OmegaModr/home-assistant-metron-ev/issues",
   "requirements": [
-    "websockets==11.0.2"
+    "websockets"
   ],
-  "version": "0.3.3"
+  "version": "0.3.5"
 }

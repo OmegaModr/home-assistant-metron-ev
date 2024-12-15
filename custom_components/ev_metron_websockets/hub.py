@@ -7,6 +7,7 @@ from collections.abc import Callable
 #from datetime import datetime
 
 from homeassistant.core import HomeAssistant
+from websockets.protocol import State
 
 #from . import const
 from . import metron
@@ -42,6 +43,8 @@ class MetronEVHub:
         self._solar_charging_enable = 0
         self._solar_charging_enable_esp = 0
         self._total_charging_power = 0
+        self._total_house_power = 0
+        self._total_solar_power = 0
         self._this_charge_energy = 0
         self._hour_counter = 0
         self._minute_counter = 0
@@ -58,8 +61,8 @@ class MetronEVHub:
         """Test if we can subscribe to the websocket."""
         success = False
         async with websockets.connect(self._uri) as websocket:
-            success = not websocket.closed
-
+            if websocket.state is State.OPEN:
+              success = True
         return success
 
     async def update(self) -> None:
@@ -67,7 +70,7 @@ class MetronEVHub:
         while True:
             try:
                 async with websockets.connect(self._uri) as websocket:
-                    self._is_active = not websocket.closed
+                    self._is_active = websocket.state is State.OPEN
                     async for message in websocket:
                         latest_message = metron.get_parsed_variables(message)
                         self._metron_ev_status = latest_message.get("Status")
@@ -84,6 +87,8 @@ class MetronEVHub:
                         self._solar_charging_enable_esp = latest_message.get("Solar_charging_enable_ESP32_reply")
                         self._solar_charging_enable = latest_message.get("Solar_charging_enable")
                         self._total_charging_power = latest_message.get("Total_charging_power")
+                        self._total_house_power = latest_message.get("Total_house_power")
+                        self._total_solar_power = latest_message.get("Total_solar_power")
                         self._this_charge_energy = latest_message.get("This_charge_energy")
                         self._hour_counter = latest_message.get("hour_counter")
                         self._minute_counter = latest_message.get("minute_counter")
@@ -106,7 +111,7 @@ class MetronEVHub:
                 self._is_active = False
                 await asyncio.sleep(5)
             else:
-                self._is_active = not websocket.closed
+                self._is_active = websocket.state is State.OPEN
                 await self.publish_updates()
 
     @property
@@ -188,6 +193,16 @@ class MetronEVHub:
     def total_charging_power(self) -> str:
         """Return the value of total_charging_power."""
         return self._total_charging_power
+
+    @property
+    def total_house_power(self) -> str:
+        """Return the value of total_house_power."""
+        return self._total_house_power
+
+    @property
+    def total_solar_power(self) -> str:
+        """Return the value of total_solar_power."""
+        return self._total_solar_power
 
     @property
     def this_charge_energy(self) -> str:
