@@ -1,4 +1,4 @@
-name: "Lint"
+name: "Lint & Test"
 
 on:
   push:
@@ -23,7 +23,27 @@ jobs:
             cache: "pip"
 
         - name: "Install requirements"
-          run: python3 -m pip install -r requirements.txt
+          run: python3 -m pip install ruff==$(grep -oP 'ruff==\K[^$]+' requirements.txt)
 
         - name: "Run"
           run: python3 -m ruff check .
+
+  pytest:
+    name: "Tests"
+    runs-on: "ubuntu-latest"
+    needs: ruff
+    steps:
+        - name: "Checkout the repository"
+          uses: "actions/checkout@v4.1.7"
+
+        - name: "Set up Python"
+          uses: actions/setup-python@v5
+          with:
+            python-version: "3.10"
+            cache: "pip"
+
+        - name: "Install test dependencies"
+          run: python3 -m pip install pytest
+
+        - name: "Run tests"
+          run: python3 -m pytest tests/ -v
