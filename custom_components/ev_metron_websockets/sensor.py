@@ -3,8 +3,7 @@
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.const import UnitOfEnergy, UnitOfPower, UnitOfElectricCurrent, UnitOfTime
-from homeassistant.util import dt as dt_util
+from homeassistant.const import EntityCategory, UnitOfElectricCurrent, UnitOfEnergy, UnitOfPower, UnitOfTime
 from homeassistant.components.sensor import (
     SensorStateClass,
     SensorDeviceClass,
@@ -57,6 +56,7 @@ async def async_setup_entry(
             SignalPresent(hub),
             CarConnected(hub),
             CarCharging(hub),
+            MessageFormat(hub),
         ]
     )
 
@@ -247,7 +247,7 @@ class HouseEnergy(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_house_energy"
         self._attr_name = f"{hub._name} house energy"
-        self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_state_class = SensorStateClass.TOTAL_INCREASING
         self._attr_unit_of_measurement = UnitOfEnergy.WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
 
@@ -482,11 +482,10 @@ class LifetimeEnergy(MetronEVBaseEntity):
         """Initialize the sensor."""
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_lifetime_energy"
-        self._attr_name = f"{hub._name} lifetime_energy"
-        self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_name = f"{hub._name} lifetime energy"
+        self._attr_state_class = SensorStateClass.TOTAL_INCREASING
         self._attr_unit_of_measurement = UnitOfEnergy.WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
-        self._attr_last_reset = dt_util.utc_from_timestamp(0)
 
     @property
     def state(self) -> str:
@@ -501,8 +500,8 @@ class SolarEnergy(MetronEVBaseEntity):
         """Initialize the sensor."""
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_solar_energy"
-        self._attr_name = f"{hub._name}  solar energy"
-        self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_name = f"{hub._name} solar energy"
+        self._attr_state_class = SensorStateClass.TOTAL_INCREASING
         self._attr_unit_of_measurement = UnitOfEnergy.WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
 
@@ -598,6 +597,22 @@ class CarConnected(MetronEVBaseEntity):
             return True
         else:
             return False
+
+class MessageFormat(MetronEVBaseEntity):
+    """Reports the websocket message format detected from the charger firmware."""
+
+    def __init__(self, hub) -> None:
+        """Initialize the sensor."""
+        super().__init__(hub)
+        self._attr_unique_id = f"{hub._name}_message_format"
+        self._attr_name = f"{hub._name} message format"
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    @property
+    def state(self) -> str:
+        """Return the detected message format: json, legacy, or unknown."""
+        return self._hub.message_format
+
 
 class CarCharging(MetronEVBaseEntity):
     """Metron station status entity."""

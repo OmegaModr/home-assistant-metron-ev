@@ -29,7 +29,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 
 
 def _reconfigure_schema(host: str, port: str) -> vol.Schema:
-    """Schema for editing the connection details of an existing entry."""
+    """Return schema for editing the connection details of an existing entry."""
     return vol.Schema(
         {
             vol.Required(CONF_HOST, default=host): str,

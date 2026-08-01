@@ -1,16 +1,18 @@
 """Contains the MetronEVHub class."""
 
-import websockets
 import asyncio
+import logging
+
+import websockets
 
 from collections.abc import Callable
-#from datetime import datetime
 
 from homeassistant.core import HomeAssistant
 from websockets.protocol import State
 
-#from . import const
 from . import metron
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class MetronEVHub:
@@ -56,6 +58,7 @@ class MetronEVHub:
         self._ESP32_timer_delay = 0
         self._HC12_Signal_Present = 0
         self._TCA0_cmp2 = 0
+        self._message_format = "unknown"
 
     async def test_endpoint(self) -> bool:
         """Test if we can subscribe to the websocket."""
@@ -72,7 +75,7 @@ class MetronEVHub:
                 async with websockets.connect(self._uri) as websocket:
                     self._is_active = websocket.state is State.OPEN
                     async for message in websocket:
-                        latest_message = metron.get_parsed_variables(message)
+                        latest_message, self._message_format = metron.get_parsed_variables(message)
                         self._metron_ev_status = latest_message.get("Status")
                         self._L1_current_station = latest_message.get("L1_current_station")
                         self._L2_current_station = latest_message.get("L2_current_station")
@@ -103,11 +106,11 @@ class MetronEVHub:
                         self._TCA0_cmp2 = latest_message.get("TCA0_cmp2")
                         await self.publish_updates()
             except websockets.WebSocketException as e:
-                print(f"WebSocket exception: {e}. Reconnecting in 5 seconds...")  # noqa: T201
+                _LOGGER.warning("WebSocket error, reconnecting in 5 s: %s", e)
                 self._is_active = False
                 await asyncio.sleep(5)
-            except Exception as e:
-                print(f"Unexpected error: {e}. Reconnecting in 5 seconds...")  # noqa: T201
+            except Exception:
+                _LOGGER.exception("Unexpected error in websocket loop, reconnecting in 5 s")
                 self._is_active = False
                 await asyncio.sleep(5)
             else:
@@ -278,6 +281,11 @@ class MetronEVHub:
         """Call all callbacks on update."""
         for callback in self._callbacks:
             callback()
+
+    @property
+    def message_format(self) -> str:
+        """Return the last detected websocket message format."""
+        return self._message_format
 
     @property
     def available(self) -> bool:
