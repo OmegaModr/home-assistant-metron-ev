@@ -1,8 +1,6 @@
 """Tests for the metron websocket message parser."""
 
 import json
-import pytest
-
 from custom_components.ev_metron_websockets.metron import (
     assign_variables,
     assign_variables_json,
@@ -142,6 +140,14 @@ class TestAssignVariablesJson:
         obj = {k: v for k, v in FULL_JSON_OBJ.items() if k != 'S'}
         result = assign_variables_json(obj)
         assert result["Local_network_IP_string"] == ""
+
+    def test_null_string_field_coerced_to_empty_string(self):
+        obj = dict(FULL_JSON_OBJ)
+        obj['S'] = None
+        obj['AD'] = None
+        result = assign_variables_json(obj)
+        assert result["Local_network_IP_string"] == ""
+        assert result["last_scanned_card"] == ""
 
     def test_energy_values(self):
         result = assign_variables_json(FULL_JSON_OBJ)

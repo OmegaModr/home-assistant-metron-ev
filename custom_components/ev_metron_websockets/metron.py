@@ -55,8 +55,9 @@ def assign_variables_json(obj):
         return 0 if val is None else val
 
     def _s(key):
-        """Get a string field, defaulting to empty string for missing keys."""
-        return obj.get(key, "")
+        """Get a string field, defaulting to empty string for missing or null keys."""
+        val = obj.get(key, "")
+        return val if val is not None else ""
 
     return {
         "Status": _n('a'),

@@ -494,7 +494,7 @@ class LifetimeEnergy(MetronEVBaseEntity):
         return self._hub.lifetime_energy
 
 class SolarEnergy(MetronEVBaseEntity):
-    """Metron station status entity."""
+    """Metron solar energy lifetime counter."""
 
     def __init__(self, hub) -> None:
         """Initialize the sensor."""
