@@ -247,7 +247,7 @@ class HouseEnergy(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_house_energy"
         self._attr_name = f"{hub._name} house energy"
-        self._attr_state_class = SensorStateClass.TOTAL_INCREASING
+        self._attr_state_class = SensorStateClass.TOTAL
         self._attr_unit_of_measurement = UnitOfEnergy.WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
 
@@ -429,7 +429,7 @@ class ThisChargeEnergy(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_this_charge_energy"
         self._attr_name = f"{hub._name} this charge energy"
-        self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_state_class = SensorStateClass.TOTAL
         self._attr_unit_of_measurement = UnitOfEnergy.WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
 
@@ -465,7 +465,7 @@ class PreviousChargeEnergy(MetronEVBaseEntity):
         super().__init__(hub)
         self._attr_unique_id = f"{hub._name}_previous_charge_energy"
         self._attr_name = f"{hub._name} previous charge energy"
-        self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_state_class = SensorStateClass.TOTAL
         self._attr_unit_of_measurement = UnitOfEnergy.WATT_HOUR
         self._attr_device_class = SensorDeviceClass.ENERGY
 

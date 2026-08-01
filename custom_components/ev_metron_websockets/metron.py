@@ -37,30 +37,28 @@ def assign_variables(values):
         'HC12_Channel', 'HC12_Signal_Present',
     ]
     parsed_variables = dict(zip(var_names, values))
-    if len(values) < len(var_names):
+    n = len(values)
+    expected = len(var_names)
+    if n != expected:
         _LOGGER.debug(
-            "Legacy message has %d fields, expected %d — older firmware?",
-            len(values), len(var_names),
+            "Legacy message has %d fields, expected %d — firmware version mismatch?",
+            n, expected,
         )
     return parsed_variables
 
 
-def assign_variables_json(values):
-    """Assign values to named variables from JSON format."""
-    obj = json.loads(values)
-
+def assign_variables_json(obj):
+    """Assign values to named variables from a parsed JSON object."""
     def _n(key):
         """Get a numeric field, defaulting to 0 for missing keys (older firmware)."""
         val = obj.get(key, 0)
-        if val is None:
-            return 0
-        return val
+        return 0 if val is None else val
 
     def _s(key):
         """Get a string field, defaulting to empty string for missing keys."""
         return obj.get(key, "")
 
-    parsed_variables = {
+    return {
         "Status": _n('a'),
         "L1_current_station": _n('b'),
         "L2_current_station": _n('c'),
@@ -140,32 +138,29 @@ def assign_variables_json(values):
         "Grid_system": _n('BE'),
     }
 
-    missing = [k for k in ('a', 'b', 'A', 'G') if k not in obj]
-    if missing:
-        _LOGGER.warning(
-            "JSON message missing expected core keys %s — firmware may be too old or message malformed",
-            missing,
-        )
-
-    return parsed_variables
-
-
-def is_json(s):
-    """Determine if the message is JSON (new format) or legacy alphabet-delimited."""
-    try:
-        json.loads(s)
-    except ValueError:
-        return False
-    return True
-
 
 def get_parsed_variables(ws_string):
-    """Parse a websocket message and return (variable dict, format string)."""
-    if is_json(ws_string):
-        return assign_variables_json(ws_string), "json"
+    """Parse a websocket message and return (variable dict, format string).
+
+    Tries JSON first (new firmware), falls back to legacy alphabet-delimited
+    format, and logs a warning if neither matches.
+    """
+    try:
+        obj = json.loads(ws_string)
+    except ValueError:
+        pass
+    else:
+        missing = [k for k in ('a', 'b', 'A', 'G') if k not in obj]
+        if missing:
+            _LOGGER.debug(
+                "JSON message missing core keys %s — older firmware?", missing,
+            )
+        return assign_variables_json(obj), "json"
+
     parsed_values = parse_string(ws_string)
     if parsed_values:
         _LOGGER.debug("Received legacy (non-JSON) message format")
         return assign_variables(parsed_values), "legacy"
-    _LOGGER.warning("Received unrecognised message format: %.120s", ws_string)
+
+    _LOGGER.warning("Unrecognised message format: %.120s", ws_string)
     return {}, "unknown"
