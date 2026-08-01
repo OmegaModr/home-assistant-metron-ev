@@ -105,17 +105,16 @@ class MetronEVHub:
                         self._HC12_Signal_Present = latest_message.get("HC12_Signal_Present")
                         self._TCA0_cmp2 = latest_message.get("TCA0_cmp2")
                         await self.publish_updates()
+                # Clean close: server ended the stream normally
+                _LOGGER.debug("WebSocket closed cleanly, reconnecting in 5 s")
             except websockets.WebSocketException as e:
                 _LOGGER.warning("WebSocket error, reconnecting in 5 s: %s", e)
-                self._is_active = False
-                await asyncio.sleep(5)
             except Exception:
                 _LOGGER.exception("Unexpected error in websocket loop, reconnecting in 5 s")
+            finally:
                 self._is_active = False
-                await asyncio.sleep(5)
-            else:
-                self._is_active = websocket.state is State.OPEN
                 await self.publish_updates()
+                await asyncio.sleep(5)
 
     @property
     def metron_ev_name(self) -> str:
